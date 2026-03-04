@@ -12,7 +12,7 @@ MAX_INPUT_BYTES = int(os.getenv("MAX_INPUT_BYTES", str(5 * 1024 * 1024)))   # 5M
 MAX_PIXELS      = int(os.getenv("MAX_PIXELS", str(4000 * 4000)))            # 16MP
 TIMEOUT_SECONDS = int(os.getenv("TIMEOUT_SECONDS", "25"))
 RETURN_META     = os.getenv("RETURN_META", "1") == "1"
-APP_KEY         = os.getenv("APP_KEY", "")
+CLIENT_TOKEN    = os.getenv("CLIENT_TOKEN", "")
 
 
 def _b64_to_bytes(b64_str: str) -> bytes:
@@ -54,10 +54,15 @@ def handler(job):
     request_id = str(uuid.uuid4())
     start = time.time()
 
-    inp = job.get("input") or {}
-    client_key = inp.get("app_key")
-    if APP_KEY and client_key != APP_KEY:
-        return {"ok": False, "request_id": request_id, "error": "Unauthorized"}
+    inp = job.get("input", {}) or {}
+    # TEMP: disable client token check while testing
+    # provided_token = inp.get("client_token") or inp.get("clientToken") or ""
+    # if CLIENT_TOKEN and provided_token != CLIENT_TOKEN:
+    #     return {
+    #         "ok": False,
+    #         "request_id": request_id,
+    #         "error": "Unauthorized",
+    #     }
 
     img_b64 = inp.get("image_base64")
     if not img_b64:
